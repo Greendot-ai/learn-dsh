@@ -1,0 +1,31 @@
+{
+  "name": "learn-dsh",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "从零理解 DeepSeek Harness：12 个可运行的 TypeScript 课程",
+  "license": "MIT",
+  "engines": { "node": ">=24.9.0" },
+  "scripts": {
+    "lesson": "node --env-file-if-exists=.env scripts/lesson.ts",
+    "demo": "node scripts/demo.ts",
+    "start": "node --env-file-if-exists=.env s11_harness/code.ts --live",
+    "test": "node --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check:docs": "node scripts/check-docs.ts",
+    "check": "npm run typecheck && npm test && npm run demo && npm run check:docs"
+  },
+  "dependencies": {
+    "@deepseek-ai/cordis": "4.1.0",
+    "@deepseek-ai/dsh-brand": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-llm": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-system-prompt": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-tool-executor-native": "0.2.2-rc.3",
+    "@deepseek-ai/dsh-tools": "0.2.2-rc.3",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.1",
+    "typescript": "5.9.3"
+  }
+}
