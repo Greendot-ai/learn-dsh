@@ -1,6 +1,6 @@
 # Learn dsh 文档网站
 
-网站直接采用 MIT 开源的 [Astro Starlight](https://github.com/withastro/starlight) 官方主题。页头、侧栏、页内目录、中文搜索、手机导航、深浅主题、卡片、标签页及代码块均来自 Starlight 与它集成的 Expressive Code；仅为阅读进度和机制演示的操作按钮补充少量样式。
+网站直接采用 MIT 开源的 [Astro Starlight](https://github.com/withastro/starlight) 官方主题。页头、侧栏、页内目录、中文搜索、手机导航、深浅主题、卡片、标签页及代码块均来自 Starlight 与它集成的 Expressive Code；仅为阅读进度、机制演示的操作按钮和手机端课程标签间距补充少量样式。
 
 ## 开发与检查
 

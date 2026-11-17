@@ -59,4 +59,11 @@ const lesson = course.lessons.find(item => item.id === lessonId)
   /* The page outline describes the reading tab. */
   body:has([data-course][data-view="source"]) .right-sidebar-panel,
   body:has([data-course][data-view="mechanism"]) .right-sidebar-panel { visibility: hidden; }
+  @media (max-width: 30rem) {
+    [data-course] > starlight-tabs > .tablist-wrapper [role="tab"] {
+      white-space: nowrap;
+      font-size: var(--sl-text-sm);
+      padding-inline: .65rem;
+    }
+  }
 </style>
