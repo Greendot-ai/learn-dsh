@@ -6,6 +6,10 @@ Learn [DeepSeek Harness (dsh)](https://github.com/deepseek-ai/deepseek-harness) 
 
 This is an independent educational project, unaffiliated with DeepSeek. Lessons and exercises are currently written in Chinese; the examples and this entry point are accessible in English. Lessons 1–11 use a simplified teaching runtime, Cordis is used from lesson 3, and lesson 12 executes a tool through official dsh packages.
 
+## Companion website
+
+The Chinese learning website includes all 12 lessons, a source explorer, deterministic mechanism demos, search, local progress, and light/dark themes. After installing dependencies, run `npm run web:dev`. Use `npm run web:check` for website validation and production builds. See the [website guide](web/README.md) for GitHub Pages deployment.
+
 ## Quick start
 
 Use Node.js ≥24.9.0 (the pinned version is in [.nvmrc](.nvmrc)). No API key is needed.
