@@ -1,0 +1,9 @@
+---
+import DefaultHead from '@astrojs/starlight/components/Head.astro'
+---
+<DefaultHead />
+<script>
+  import { legacyTarget } from '../state.ts'
+  const target = legacyTarget(location.hash, import.meta.env.BASE_URL.replace(/\/?$/, '/'))
+  if (target) location.replace(target)
+</script>

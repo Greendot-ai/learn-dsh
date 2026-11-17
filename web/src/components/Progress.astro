@@ -1,0 +1,41 @@
+---
+interface Props { lessonId: string }
+const { lessonId } = Astro.props
+---
+<div class="progress-row" data-progress={lessonId} data-pagefind-ignore>
+  <button type="button" aria-pressed="false" class="course-button" data-complete>标记已读</button>
+  <span role="status" data-progress-label>学习进度保存在当前浏览器</span>
+</div>
+<script>
+  import { lessons } from '../../../scripts/lessons.ts'
+  import { progressKey, readProgress } from '../state.ts'
+  const row = document.querySelector<HTMLElement>('[data-progress]')
+  const button = row?.querySelector<HTMLButtonElement>('[data-complete]')
+  if (row && button) {
+    const ids = lessons.map(([id]) => id)
+    let done = new Set<string>()
+    try { done = readProgress(localStorage.getItem(progressKey), ids) } catch { /* Storage may be unavailable. */ }
+    const update = () => {
+      const checked = done.has(row.dataset.progress!)
+      button.textContent = checked ? '已读 · 取消标记' : '标记已读'
+      button.setAttribute('aria-pressed', String(checked))
+      row.querySelector('[data-progress-label]')!.textContent = `已完成 ${done.size} / ${ids.length} 章`
+    }
+    update()
+    button.addEventListener('click', () => {
+      const id = row.dataset.progress!
+      if (done.has(id)) done.delete(id); else done.add(id)
+      try { localStorage.setItem(progressKey, JSON.stringify([...done])); update() }
+      catch { update(); row.querySelector('[data-progress-label]')!.textContent += '（本次未能保存）' }
+    })
+  }
+</script>
+<style>
+  .progress-row { display: flex; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); }
+</style>
+<style is:global>
+  .course-button { font: inherit; color: var(--sl-color-white); background: var(--sl-color-gray-6); border: 1px solid var(--sl-color-gray-5); border-radius: .4rem; padding: .4rem .8rem; cursor: pointer; }
+  .course-button:hover { border-color: var(--sl-color-text-accent); }
+  .course-button[aria-pressed="true"] { color: var(--sl-color-text-accent); }
+  .course-button:disabled { opacity: .5; cursor: default; }
+</style>
