@@ -10,7 +10,7 @@
 
 ## 配套网页
 
-课程网站提供 12 章阅读、源码浏览、逐步机制演示、搜索与本地学习进度，不需要 API Key。完成依赖安装后，运行 `npm run web:dev` 即可打开本地网站。
+课程网站采用开源 [Starlight](https://starlight.astro.build/) 文档主题，提供 12 章阅读、源码浏览、逐步机制演示、搜索与本地学习进度，不需要 API Key。完成依赖安装后，运行 `npm run web:dev` 即可打开本地网站。
 
 运行 `npm run web:check` 验证网站内容、类型和生产构建；部署方式见[网站开发说明](web/README.md)。GitHub Pages 工作流在 PR 上检查构建，合入 main 后发布。
 

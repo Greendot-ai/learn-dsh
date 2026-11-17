@@ -5,7 +5,9 @@
   "type": "module",
   "description": "从零理解 DeepSeek Harness：12 个可运行的 TypeScript 课程",
   "license": "MIT",
-  "engines": { "node": ">=24.9.0" },
+  "engines": {
+    "node": ">=24.9.0"
+  },
   "scripts": {
     "lesson": "node --env-file-if-exists=.env scripts/lesson.ts",
     "demo": "node scripts/demo.ts",
@@ -14,10 +16,10 @@
     "typecheck": "tsc --noEmit",
     "check:docs": "node scripts/check-docs.ts",
     "check": "npm run typecheck && npm test && npm run demo && npm run check:docs",
-    "web:dev": "vite --config web/vite.config.ts --host 0.0.0.0",
-    "web:build": "tsc --project web/tsconfig.json && vite build --config web/vite.config.ts",
-    "web:preview": "vite preview --config web/vite.config.ts --host 0.0.0.0",
-    "web:check": "node --test web/tests/*.test.ts && npm run web:build"
+    "web:dev": "astro dev --root web --host 0.0.0.0 --port 5173",
+    "web:build": "astro check --root web && astro build --root web",
+    "web:preview": "astro preview --root web --host 0.0.0.0 --port 4173",
+    "web:check": "node --test web/tests/*.test.ts && npm run web:build && node web/check-build.ts"
   },
   "dependencies": {
     "@deepseek-ai/cordis": "4.1.0",
@@ -29,11 +31,17 @@
     "zod": "4.6.7"
   },
   "devDependencies": {
-    "@types/markdown-it": "14.1.2",
+    "@astrojs/check": "0.9.12",
+    "@astrojs/markdown-remark": "7.3.0",
+    "@astrojs/starlight": "0.43.1",
+    "@types/mdast": "4.0.4",
     "@types/node": "24.10.1",
-    "highlight.js": "11.12.0",
-    "markdown-it": "14.3.3",
-    "vite": "7.3.8",
-    "typescript": "5.9.3"
+    "astro": "7.4.12",
+    "hast-util-from-html": "2.1.0",
+    "remark-parse": "11.0.0",
+    "remark-stringify": "11.0.0",
+    "typescript": "5.9.3",
+    "unified": "11.0.5",
+    "unist-util-visit": "5.1.0"
   }
 }

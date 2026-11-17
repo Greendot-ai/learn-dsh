@@ -8,3 +8,6 @@ coverage/
 *.tsbuildinfo
 *.tgz
 web/dist/
+web/.astro/
+web/src/content/docs/
+web/src/generated/

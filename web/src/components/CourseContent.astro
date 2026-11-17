@@ -1,0 +1,69 @@
+---
+import DefaultContent from '@astrojs/starlight/components/MarkdownContent.astro'
+import { Tabs, TabItem } from '@astrojs/starlight/components'
+import generated from '../generated/course.json'
+import type { Course } from '../../types.ts'
+import SourceBrowser from './SourceBrowser.astro'
+import Mechanism from './Mechanism.astro'
+import Progress from './Progress.astro'
+const { lessonId } = Astro.locals.starlightRoute.entry.data
+const course: Course = generated
+const lesson = course.lessons.find(item => item.id === lessonId)
+---
+{lesson ? <div data-course={lesson.id}>
+  <Progress lessonId={lesson.id} />
+  <Tabs>
+    <TabItem label="阅读教程" icon="open-book"><DefaultContent><slot /></DefaultContent></TabItem>
+    <TabItem label="查看源码" icon="document"><SourceBrowser files={lesson.files.map(path => course.files[path]!)} /></TabItem>
+    <TabItem label="机制演示" icon="puzzle"><Mechanism lesson={lesson} /></TabItem>
+  </Tabs>
+</div> : <DefaultContent><slot /></DefaultContent>}
+
+<script>
+  customElements.whenDefined('starlight-tabs').then(() => {
+    const course = document.querySelector<HTMLElement>('[data-course]')
+    if (!course) return
+    const views = ['tutorial', 'source', 'mechanism']
+    const tabs = [...course.querySelectorAll<HTMLAnchorElement>(':scope > starlight-tabs > .tablist-wrapper [role="tab"]')]
+    const params = new URLSearchParams(location.search)
+    const index = views.indexOf(params.get('view') || 'tutorial')
+    if (index > 0) tabs[index]?.click()
+    const source = course.querySelector('[data-source-browser]')
+    if (params.get('file') && source) {
+      const fileTabs = [...source.querySelectorAll<HTMLAnchorElement>('[role="tab"]')]
+      fileTabs.find(tab => tab.textContent?.trim() === params.get('file'))?.click()
+    }
+    const updateView = (index: number) => {
+      const url = new URL(location.href)
+      if (index) url.searchParams.set('view', views[index]!)
+      else { url.searchParams.delete('view'); url.searchParams.delete('file') }
+      history.replaceState(null, '', url)
+      course.dataset.view = views[index]
+      if (index !== 2) course.dispatchEvent(new Event('pause-mechanism'))
+    }
+    tabs.forEach((tab, index) => {
+      new MutationObserver(() => { if (tab.getAttribute('aria-selected') === 'true') updateView(index) })
+        .observe(tab, { attributes: true, attributeFilter: ['aria-selected'] })
+    })
+    updateView(Math.max(0, index))
+    source?.addEventListener('click', event => {
+      const tab = (event.target as HTMLElement).closest('[role="tab"]')
+      if (!tab) return
+      const url = new URL(location.href)
+      url.searchParams.set('file', tab.textContent!.trim())
+      history.replaceState(null, '', url)
+    })
+  })
+</script>
+<style is:global>
+  /* The page outline describes the reading tab. */
+  body:has([data-course][data-view="source"]) .right-sidebar-panel,
+  body:has([data-course][data-view="mechanism"]) .right-sidebar-panel { visibility: hidden; }
+  @media (max-width: 30rem) {
+    [data-course] > starlight-tabs > .tablist-wrapper [role="tab"] {
+      white-space: nowrap;
+      font-size: var(--sl-text-sm);
+      padding-inline: .65rem;
+    }
+  }
+</style>

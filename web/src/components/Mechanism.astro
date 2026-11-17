@@ -1,0 +1,56 @@
+---
+import { Aside, Badge, Code } from '@astrojs/starlight/components'
+import type { Lesson } from '../../types.ts'
+interface Props { lesson: Lesson }
+const { lesson } = Astro.props
+---
+<div class="sl-markdown-content" data-mechanism data-pagefind-ignore>
+  <Aside type="note">固定教学数据的逐步示意，不会运行源码或调用模型。</Aside>
+  <div class="controls">
+    <button class="course-button" data-demo="back" disabled>上一步</button>
+    <button class="course-button" data-demo="next">下一步</button>
+    <button class="course-button" data-demo="play">自动播放</button>
+    <button class="course-button" data-demo="reset">重新开始</button>
+    <span data-demo-status role="status">1 / {lesson.steps.length}</span>
+  </div>
+  {lesson.steps.map((item, index) => <section data-step={index} hidden={index !== 0}>
+    <p><Badge text={`步骤 ${index + 1}`} /></p>
+    <h2>{item.title}</h2>
+    <p>{item.detail}</p>
+    <Code code={item.code} lang="ts" />
+  </section>)}
+  <Aside type="tip" title="记住这个机制">{lesson.insight}</Aside>
+</div>
+<script>
+  const demo = document.querySelector<HTMLElement>('[data-mechanism]')
+  if (demo) {
+    const panels = [...demo.querySelectorAll<HTMLElement>('[data-step]')]
+    const button = (action: string) => demo.querySelector<HTMLButtonElement>(`[data-demo="${action}"]`)!
+    let step = 0
+    let timer: ReturnType<typeof setInterval> | undefined
+    const pause = () => { clearInterval(timer); timer = undefined; button('play').textContent = '自动播放' }
+    const render = () => {
+      panels.forEach((panel, index) => panel.hidden = index !== step)
+      button('back').disabled = step === 0
+      button('next').disabled = step === panels.length - 1
+      button('play').disabled = step === panels.length - 1
+      demo.querySelector('[data-demo-status]')!.textContent = `${step + 1} / ${panels.length}`
+    }
+    const next = () => { step = Math.min(step + 1, panels.length - 1); if (step === panels.length - 1) pause(); render() }
+    button('next').onclick = () => { pause(); next() }
+    button('back').onclick = () => { pause(); step = Math.max(0, step - 1); render() }
+    button('reset').onclick = () => { pause(); step = 0; render() }
+    button('play').onclick = () => {
+      if (timer) pause()
+      else { button('play').textContent = '暂停'; timer = setInterval(next, 1800) }
+    }
+    demo.closest('[data-course]')?.addEventListener('pause-mechanism', pause)
+    document.addEventListener('visibilitychange', () => { if (document.hidden) pause() })
+    window.addEventListener('pagehide', pause)
+  }
+</script>
+<style>
+  .controls { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; margin-block: 1.5rem; font-size: var(--sl-text-sm); }
+  [data-demo-status] { margin-inline-start: auto; font-variant-numeric: tabular-nums; }
+  [data-step] { margin-bottom: 2rem; }
+</style>

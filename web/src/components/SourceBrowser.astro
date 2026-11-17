@@ -1,0 +1,15 @@
+---
+import { Tabs, TabItem, Code } from '@astrojs/starlight/components'
+import type { SourceFile } from '../../types.ts'
+interface Props { files: SourceFile[] }
+const { files } = Astro.props
+---
+<div class="sl-markdown-content" data-source-browser data-pagefind-ignore>
+  <p>入口文件与它导入的共享模块。选择文件阅读，或在 GitHub 查看原始源码。</p>
+  <Tabs>
+    {files.map(file => <TabItem label={file.path}>
+      <p><a href={`https://github.com/Greendot-ai/learn-dsh/blob/main/${file.path}`}>在 GitHub 查看此文件</a> · {file.lines} 行</p>
+      <Code code={file.raw} lang="ts" title={file.path} />
+    </TabItem>)}
+  </Tabs>
+</div>
