@@ -5,7 +5,7 @@ interface Props { lesson: Lesson }
 const { lesson } = Astro.props
 ---
 <div class="sl-markdown-content" data-mechanism data-pagefind-ignore>
-  <Aside type="note">固定教学数据的逐步示意，不会运行源码或调用模型。</Aside>
+  <Aside type="note">以下为固定教学示意，不运行源码或调用模型。片段省略了部分初始化代码；实际运行请使用教程中的命令。</Aside>
   <div class="controls">
     <button class="course-button" data-demo="back" disabled>上一步</button>
     <button class="course-button" data-demo="next">下一步</button>
@@ -19,7 +19,7 @@ const { lesson } = Astro.props
     <p>{item.detail}</p>
     <Code code={item.code} lang="ts" />
   </section>)}
-  <Aside type="tip" title="记住这个机制">{lesson.insight}</Aside>
+  <Aside type="tip" title="本章要点">{lesson.insight}</Aside>
 </div>
 <script>
   const demo = document.querySelector<HTMLElement>('[data-mechanism]')

@@ -2,6 +2,8 @@
 
 上一章：[组合 Harness](../s11_harness/README.md) · [课程目录](../README.md)
 
+本章目标：使用官方 dsh 包编写工具插件，验证它能注册、执行、渲染结果，并随插件卸载而移除。
+
 ## 要解决的问题
 
 能自己写一个 Harness，不等于已经会扩展 dsh。需要识别官方服务契约、实际运行工具管线，并确认插件卸载时能力确实移除。
@@ -26,11 +28,11 @@ ctx.tools.register(defineTool({
 }))
 ```
 
-留意两点：官方参数定义不是完整的 Chat Completions `parameters` 对象；执行返回的是 canonical 字符串，`render` 再把它变成模型可见文本内容块。不要把教学注册表的 API 原样粘进来。
+留意两个接口差异：`parameters` 在这里直接定义各参数，不是完整的 Chat Completions 参数对象；`execute` 返回工具的原始结果值（canonical value），本例为字符串，再由 `output.render` 转成模型可见的文本内容块。
 
 [code.ts](code.ts) 装配最少的官方服务：`dsh-system-prompt`、`dsh-tools`、`dsh-tool-executor-native`，然后加载问候插件。它真实调用 `tools.schemas()` 和 `tools.execute()`，断言返回内容，再卸载插件并断言工具从注册表消失。
 
-这是集成测试用的 Context，不是启动官方 Agent 应用；不需要 LLM、不需要 Key，也没有挂载官方会话或 UI。启动真实应用应使用官方 `dsh` profile。
+这个 Context 只装配验证工具管线所需的服务，无需模型或 API Key。完整的官方 Agent 应用还需要模型循环、会话和客户端等组件；下面的扩展步骤再介绍如何在官方 Web 应用中加载同一插件。
 
 ## 运行
 
@@ -45,7 +47,7 @@ official dsh pipeline: [{"type":"text","text":"Hello, dsh!"}]
 unloaded: tool removed from official registry
 ```
 
-本课程默认自动验证覆盖到这条管线。下面是在官方应用里使用同一插件的拓展步骤，需要另外安装官方 CLI 并配置应用模型；不包含在离线检查中。
+看到这两行，说明工具通过官方管线返回了预期结果，且卸载断言通过。本课程的离线自动检查覆盖到这里。以下扩展需要另外安装官方 CLI 并配置模型。
 
 ### 拓展：在官方 Web profile 中加载
 

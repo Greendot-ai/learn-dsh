@@ -1,10 +1,12 @@
 # 课程与官方 dsh 的对应
 
-本课程以 [DeepSeek Harness 源码快照](https://github.com/deepseek-ai/deepseek-harness/tree/39163dd30f703a79079e2d2446545cff3c453738) 为阅读参考，集成示例锁定官方 npm 包 `0.2.2-rc.3` 与 Cordis `4.1.0`。源码快照与 npm 制品是两条独立的版本线，不假定它们逐文件一致；集成验证以本仓库锁文件中的 npm 制品为准。dsh 处于 developer preview，跟随上游升级时需要重新运行第 12 章和测试。
+用这张表把课程中的机制对应到官方实现：先理解一章的教学代码，再沿同一行的链接进入 dsh 源码，重点比较服务契约、执行流程和生命周期。
+
+阅读参考固定为 [DeepSeek Harness 源码快照](https://github.com/deepseek-ai/deepseek-harness/tree/39163dd30f703a79079e2d2446545cff3c453738)；第 12 章运行官方 npm 包 `0.2.2-rc.3` 与 Cordis `4.1.0`。源码快照和 npm 发布包不一定逐文件一致，集成验证以本仓库锁文件中的包为准。这些包属于开发预览版本，升级后需要重新运行第 12 章和测试。
 
 课程借鉴 [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code/tree/448c75bb596917ad196cc1fb7558f459c5c50fdd) 的逐章教学方式，不是其 API 的兼容实现，也不将其 Claude 工具协议直接当作 dsh 协议。
 
-| 章 | 课程实现 | 官方阅读入口 | 需要辨别的简化 |
+| 章 | 教学实现 | 官方阅读入口 | 阅读时注意 |
 |---|---|---|---|
 | [01](../s01_agent_loop/README.md) | `Model.complete` 与有界循环 | [agent-loop](https://github.com/deepseek-ai/deepseek-harness/tree/39163dd30f703a79079e2d2446545cff3c453738/packages/core/agent-loop) | 非流式 Chat Completions，不是官方流式事件协议 |
 | [02](../s02_tools/README.md) | `ToolRegistry` | [tools](https://github.com/deepseek-ai/deepseek-harness/tree/39163dd30f703a79079e2d2446545cff3c453738/packages/core/tools) | schema、解析器和 handler 由教学代码维护；官方有 defineTool、scope 与输出渲染 |
@@ -25,7 +27,9 @@
 
 ## 一个关键区别：工具声明与执行
 
-在本课程中，注册表同时返回模型 schema 和执行 handler。在官方 dsh 中，工具注册表拥有执行，`ctx.systemPrompt` 负责组合实际模型请求中的系统内容与工具声明。生产实现还区分工具的 canonical value、给模型的渲染内容与 UI 元数据；第 12 章的 `output.schema` 和 `output.render` 展示了这种分离。
+教学注册表通过 `schemas()` 提供模型可见的工具描述，通过 `execute()` 调用工具的执行函数。官方 dsh 中，工具注册表负责工具执行，`ctx.systemPrompt` 负责组合模型请求中的系统内容与工具声明。
+
+官方还将工具的原始结果值（canonical value）、模型可见内容与 UI 元数据分开处理。第 12 章用 `output.schema` 描述结果类型，用 `output.render` 将结果转为模型可见内容，阅读时可以重点跟踪这两步。
 
 ## 一个关键约束：输入可重建
 

@@ -2,13 +2,15 @@
 
 上一章：[会话回放](../s06_sessions/README.md) · [课程目录](../README.md) · 下一章：[技能](../s08_skills/README.md)
 
+本章目标：只缩短下一次发送给模型的输入，保留完整历史，并确保工具调用与结果仍然配对。
+
 ## 要解决的问题
 
 会话会越聊越长，模型输入却有大小与费用限制。直接删除历史会失去回放依据；直接取最后 N 条消息又可能从工具结果中间切开，造成 `tool_call_id` 找不到对应调用。
 
 ## 核心机制
 
-[keepRecentTurns](../lib/context.ts) 用用户输入划分轮次，保留 system 消息和最近若干个完整轮次。一个轮次包含用户输入及之后所有助手、工具消息，直到下一条用户输入。
+[keepRecentTurns](../lib/context.ts) 按用户输入划分轮次，保留 system 消息和最近若干个完整轮次。一个轮次从用户输入开始，包含随后所有助手和工具消息，直到下一条用户输入之前。根据完整历史生成本次请求所需消息的过程，在这里称为“上下文投影”。
 
 ```text
 完整历史：system | user₁ assistant₁ | user₂ assistant₂(tool-call) tool₂ assistant₃
@@ -40,7 +42,7 @@ roles: system → user → assistant → tool → assistant
 
 1. 保留最近两轮，确认输出消息数恢复为 7。
 2. 在最新一轮增加两次工具调用，确认调用与结果都保留。
-3. 用 `messages.slice(-3)` 替代投影，观察它怎样丢失用户问题或工具调用；用 `validateTranscript` 检查配对。
+3. 用 `messages.slice(-2)` 替代投影。此时只剩工具结果和最终回答，缺少对应的工具调用；用 `validateTranscript` 确认这段输入无法通过配对校验。
 
 完成标准：下一次请求可以变短，原始日志仍完整，保留的工具交换合法。
 
