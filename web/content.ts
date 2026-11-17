@@ -5,6 +5,7 @@ import { unified } from 'unified'
 import remarkParse from 'remark-parse'
 import remarkStringify from 'remark-stringify'
 import { visit } from 'unist-util-visit'
+import type { Root } from 'mdast'
 import { lessons } from '../scripts/lessons.ts'
 import { metadata } from './meta.ts'
 import type { Course, SourceFile } from './types.ts'
@@ -37,15 +38,15 @@ export function rewriteLink(href: string, current: string, sources: Set<string>,
 /** Transform the Markdown tree so links inside code examples remain literal. */
 export function prepareMarkdown(raw: string, path: string, sources: Set<string>, base = '/') {
   const clean = raw.replace(/^# .+\n/, '').replace(/^(?:上一章：|\[课程目录\]).*\n/gm, '')
-  return String(unified().use(remarkParse).use(() => tree => {
+  return String(unified().use(remarkParse).use(() => (tree: Root) => {
     visit(tree, 'link', node => {
       node.url = /^(?:javascript|vbscript|data|file):/i.test(node.url.trim()) ? '' : rewriteLink(node.url, path, sources, base)
     })
     visit(tree, 'definition', node => {
       node.url = /^(?:javascript|vbscript|data|file):/i.test(node.url.trim()) ? '' : rewriteLink(node.url, path, sources, base)
     })
-    visit(tree, 'html', (node, index, parent) => {
-      if (parent && index !== undefined) parent.children[index] = { type: 'text', value: node.value }
+    visit(tree, 'html', node => {
+      node.value = node.value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
     })
   }).use(remarkStringify, { fences: true }).processSync(clean))
 }

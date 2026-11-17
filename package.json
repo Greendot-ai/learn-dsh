@@ -37,6 +37,7 @@
     "@types/mdast": "4.0.4",
     "@types/node": "24.10.1",
     "astro": "7.4.12",
+    "hast-util-from-html": "2.1.0",
     "remark-parse": "11.0.0",
     "remark-stringify": "11.0.0",
     "typescript": "5.9.3",

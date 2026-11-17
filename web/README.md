@@ -25,7 +25,7 @@ npm run web:preview
 
 - `scripts/lessons.ts` 决定章节顺序；章节 README 和 `docs/` 是教程与指南的唯一正文来源。
 - `content.ts` 递归收集 TypeScript 依赖，并通过 Markdown 语法树转换文档链接，保留代码示例原文。
-- `generate.ts` 在 Astro 启动和构建时生成 `src/content/docs/`。此目录被 Git 忽略，请编辑原始课程，勿修改生成文件。
+- `generate.ts` 在 Astro 启动和构建时生成 `src/content/docs/` 和 `src/generated/course.json`。前者提供文档，后者提供构建时使用的课程与源码数据；均被 Git 忽略，请编辑原始课程，勿修改生成文件。
 - `meta.ts` 提供章节简介与固定机制演示。网页不会调用模型、运行 Node 工具或要求 API Key。
 - 章节使用 Starlight 的 Tabs 切换教程、源码与机制演示；源码使用原生 Tabs 和 Code 组件。
 - 阅读进度沿用旧站的 localStorage 键。没有账号、统计或后端。

@@ -1,19 +1,38 @@
 import assert from 'node:assert/strict'
 import { readFile, readdir, stat } from 'node:fs/promises'
 import { resolve, relative } from 'node:path'
+import { fromHtml } from 'hast-util-from-html'
+import { visit } from 'unist-util-visit'
 import { loadCourse, root, siteBase } from './content.ts'
 
 const dist = resolve(root, 'web/dist')
 const base = siteBase()
 const course = await loadCourse()
+const documents = new Map<string, { html: string; ids: Set<string>; links: string[] }>()
+async function document(path: string) {
+  const cached = documents.get(path)
+  if (cached) return cached
+  const html = await readFile(path, 'utf8')
+  const ids = new Set<string>()
+  const links: string[] = []
+  visit(fromHtml(html), 'element', node => {
+    if (typeof node.properties.id === 'string') ids.add(node.properties.id)
+    for (const key of ['href', 'src']) {
+      const value = node.properties[key]
+      if (typeof value === 'string') links.push(value)
+    }
+  })
+  const result = { html, ids, links }
+  documents.set(path, result)
+  return result
+}
 const pages = ['index.html', ...course.lessons.map(lesson => `lessons/${lesson.id}/index.html`),
   ...course.guides.map(guide => `guides/${guide.id}/index.html`)]
 for (const path of pages) {
-  const html = await readFile(resolve(dist, path), 'utf8')
+  const { html, links } = await document(resolve(dist, path))
   assert.ok(html.includes('lang="zh-CN"'), `Missing Chinese language: ${path}`)
   assert.ok(html.includes('<h1'), `Missing pre-rendered content: ${path}`)
-  for (const match of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
-    const href = match[1]!.replaceAll('&amp;', '&')
+  for (const href of links) {
     if (/^(?:data:|mailto:|tel:)/.test(href)) continue
     const url = new URL(href, `https://site.invalid${base}${path.replace(/index\.html$/, '')}`)
     if (url.origin !== 'https://site.invalid') continue
@@ -21,8 +40,8 @@ for (const path of pages) {
     let target = resolve(dist, decodeURIComponent(url.pathname.slice(base.length)))
     if ((await stat(target)).isDirectory()) target = resolve(target, 'index.html')
     if (url.hash && target.endsWith('.html')) {
-      const page = target === resolve(dist, path) ? html : await readFile(target, 'utf8')
-      assert.ok(page.includes(`id="${decodeURIComponent(url.hash.slice(1))}"`), `Broken fragment: ${href} in ${path}`)
+      const page = await document(target)
+      assert.ok(page.ids.has(decodeURIComponent(url.hash.slice(1))), `Broken fragment: ${href} in ${path}`)
     }
   }
 }

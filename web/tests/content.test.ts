@@ -1,5 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { unified } from 'unified'
+import remarkParse from 'remark-parse'
+import { visit } from 'unist-util-visit'
 import { loadCourse, prepareMarkdown, rewriteLink, siteBase } from '../content.ts'
 import { legacyTarget, readProgress } from '../src/state.ts'
 
@@ -19,11 +22,13 @@ test('Markdown rewrites document links without rewriting literal code', () => {
   const sources = new Set(['lib/loop.ts'])
   const raw = '# Title\n\n[chapter](../s02_tools/README.md#核心机制)\n\n[source](../lib/loop.ts)\n\n`[literal](../lib/loop.ts)`\n\n```md\n[literal](../lib/loop.ts)\n```\n\n<script>alert(1)</script>\n\n[bad](javascript:alert(1))'
   const markdown = prepareMarkdown(raw, 's01_agent_loop/README.md', sources, '/learn-dsh/')
-  assert.ok(markdown.includes('/learn-dsh/lessons/s02_tools/#核心机制'))
-  assert.ok(markdown.includes('?view=source&file=lib%2Floop.ts'))
+  const links: string[] = []
+  visit(unified().use(remarkParse).parse(markdown), 'link', node => links.push(node.url))
+  assert.ok(links.includes('/learn-dsh/lessons/s02_tools/#核心机制'))
+  assert.ok(links.includes('/learn-dsh/lessons/s01_agent_loop/?view=source&file=lib%2Floop.ts'))
   assert.ok(markdown.includes('`[literal](../lib/loop.ts)`'))
   assert.ok(markdown.includes('```md\n[literal](../lib/loop.ts)\n```'))
-  assert.ok(markdown.includes('\\<script>'))
+  assert.ok(!markdown.includes('<script>'))
   assert.ok(!markdown.includes('javascript:'))
   assert.equal(rewriteLink('running.md', 'docs/architecture.md', sources), '/guides/running/')
   assert.equal(rewriteLink('#核心机制', 's01_agent_loop/README.md', sources), '#核心机制')

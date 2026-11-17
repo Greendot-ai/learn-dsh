@@ -7,6 +7,9 @@ export async function generateSite() {
   const sources = new Set(Object.keys(course.files))
   const base = siteBase()
   const output = resolve(root, 'web/src/content/docs')
+  const data = resolve(root, 'web/src/generated')
+  await mkdir(data, { recursive: true })
+  await writeFile(resolve(data, 'course.json'), JSON.stringify(course))
   async function page(path: string, frontmatter: Record<string, unknown>, body: string) {
     const dest = resolve(output, path)
     await mkdir(resolve(dest, '..'), { recursive: true })
@@ -24,6 +27,8 @@ export async function generateSite() {
     await page(`guides/${guide.id}.md`, { title: guide.title, editUrl: `${repository}/edit/main/${guide.path}` },
       prepareMarkdown(guide.raw, guide.path, sources, base))
   }
+  await page('404.md', { title: '未找到页面', template: 'splash', editUrl: false },
+    `请检查链接地址，或[返回课程总览](${base})继续学习。`)
   await page('index.mdx', {
     title: '从零理解 DeepSeek Harness',
     description: '12 个 TypeScript 课程，从最小 Agent 循环开始，逐步理解 DeepSeek Harness。',

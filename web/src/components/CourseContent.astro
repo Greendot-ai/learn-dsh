@@ -1,15 +1,16 @@
 ---
 import DefaultContent from '@astrojs/starlight/components/MarkdownContent.astro'
 import { Tabs, TabItem } from '@astrojs/starlight/components'
-import { loadCourse } from '../../content.ts'
+import generated from '../generated/course.json'
+import type { Course } from '../../types.ts'
 import SourceBrowser from './SourceBrowser.astro'
 import Mechanism from './Mechanism.astro'
 import Progress from './Progress.astro'
 const { lessonId } = Astro.locals.starlightRoute.entry.data
-const course = lessonId ? await loadCourse() : undefined
-const lesson = course?.lessons.find(item => item.id === lessonId)
+const course: Course = generated
+const lesson = course.lessons.find(item => item.id === lessonId)
 ---
-{lesson && course ? <div data-course={lesson.id}>
+{lesson ? <div data-course={lesson.id}>
   <Progress lessonId={lesson.id} />
   <Tabs>
     <TabItem label="阅读教程" icon="open-book"><DefaultContent><slot /></DefaultContent></TabItem>
