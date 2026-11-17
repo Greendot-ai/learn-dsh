@@ -8,7 +8,9 @@ This is an independent educational project, unaffiliated with DeepSeek. Lessons 
 
 ## Companion website
 
-The Chinese learning website includes all 12 lessons, a source explorer, deterministic mechanism demos, search, local progress, and light/dark themes. After installing dependencies, run `npm run web:dev`. Use `npm run web:check` for website validation and production builds. See the [website guide](web/README.md) for GitHub Pages deployment.
+[Read the course online](https://greendot-ai.github.io/learn-dsh/). The Chinese website includes all 12 lessons, a source explorer, deterministic mechanism demos, search, local reading progress, and light/dark themes. Browsing requires no installation or API key; the demos illustrate fixed steps without executing source code.
+
+To preview the website locally, install dependencies and run `npm run web:dev`. Use `npm run web:check` for website validation and production builds. See the [website guide](web/README.md) for GitHub Pages deployment.
 
 ## Quick start
 
@@ -51,7 +53,7 @@ npm run lesson -- 1 --live
 npm run lesson -- 11 --live "Read hello.txt and explain what a harness does."
 ```
 
-Live mode sends messages and tool results to the configured HTTPS endpoint and incurs API charges. It uses non-streaming Chat Completions, a bounded loop, and a read-only fixture workspace. See the [running guide](docs/running.md) and [official source map](docs/official-map.md) for details and differences from production dsh.
+Live mode sends messages and tool results to the configured HTTPS endpoint and incurs API charges. Each command handles one user task, which may involve several model requests, then exits. It uses non-streaming Chat Completions, a bounded loop, and a read-only fixture workspace. See the [running guide](docs/running.md) and [official source map](docs/official-map.md) for details and differences from production dsh.
 
 ## License
 

@@ -5,7 +5,7 @@ interface Props { files: SourceFile[] }
 const { files } = Astro.props
 ---
 <div class="sl-markdown-content" data-source-browser data-pagefind-ignore>
-  <p>入口文件与它导入的共享模块。选择文件阅读，或在 GitHub 查看原始源码。</p>
+  <p>先读本章入口文件，再切换到它导入的共享模块，跟踪完整调用过程。这里展示源码供阅读；运行方式见“阅读教程”中的命令。</p>
   <Tabs>
     {files.map(file => <TabItem label={file.path}>
       <p><a href={`https://github.com/Greendot-ai/learn-dsh/blob/main/${file.path}`}>在 GitHub 查看此文件</a> · {file.lines} 行</p>

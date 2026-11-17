@@ -1,21 +1,19 @@
-/** Local relative targets only: external upstream links are deliberately not fetched in CI. */
+/** Source Markdown only; generated website links are checked by web/check-build.ts. */
 import assert from 'node:assert/strict'
-import { readdir, readFile, stat } from 'node:fs/promises'
+import { execFileSync } from 'node:child_process'
+import { readFile, stat } from 'node:fs/promises'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { lessons } from './lessons.ts'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
-async function markdownFiles(directory: string): Promise<string[]> {
-  const entries = await readdir(directory, { withFileTypes: true })
-  const files = await Promise.all(entries.filter(entry => !['node_modules', '.git'].includes(entry.name)).map(async entry => {
-    const path = resolve(directory, entry.name)
-    return entry.isDirectory() ? markdownFiles(path) : entry.name.endsWith('.md') ? [path] : []
-  }))
-  return files.flat()
-}
+// Include new source files, while respecting .gitignore for build output and caches.
+const markdownFiles = new Set(execFileSync('git', [
+  'ls-files', '--cached', '--others', '--exclude-standard', '-z', '--', '*.md',
+], { cwd: root, encoding: 'utf8' }).split('\0').filter(Boolean))
 let links = 0
-for (const path of await markdownFiles(root)) {
+for (const relative of markdownFiles) {
+  const path = resolve(root, relative)
   const text = await readFile(path, 'utf8')
   for (const match of text.matchAll(/\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)/g)) {
     const href = match[1]!

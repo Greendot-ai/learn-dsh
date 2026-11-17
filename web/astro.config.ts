@@ -14,7 +14,7 @@ export default defineConfig({
   trailingSlash: 'always',
   integrations: [starlight({
     title: 'learn-dsh',
-    description: '从零理解 DeepSeek Harness：12 个循序渐进的 TypeScript 课程。',
+    description: '通过 12 章可运行的 TypeScript 示例，逐步理解 DeepSeek Harness 的循环、工具、插件与会话。',
     favicon: '/favicon.svg',
     defaultLocale: 'root',
     locales: { root: { label: '简体中文', lang: 'zh-CN' } },
